@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 
 public class AudioManager : MonoBehaviour
 {
@@ -16,18 +18,39 @@ public class AudioManager : MonoBehaviour
     {
         audio = this.GetComponent<AudioSource>();
         audio.clip = opening;
-        audio.loop = true;
-        audio.pitch = 1.0f;
+        audio.volume = 0f;
         audio.Play();
+        audio.DOFade(1f, 1.0f);
     }
 
     public void PlayBgm(float audioStartTime)
     {
-        audio.time = audioStartTime;
+        RunSequenceAsyncBgm(audioStartTime).Forget();
+    }
+
+    private async UniTask RunSequenceAsyncBgm(float audioStartTime = 0f)
+    {
+        // すでにフェードアウト中のTweenがあれば止める
+        audio.DOKill();
+
+        // --- opening → フェードアウト ---
+        await audio.DOFade(0f, 1.0f)
+            .SetEase(Ease.OutSine)
+            .AsyncWaitForCompletion();
+
+        audio.Stop();
+
+        // --- 新しい bgm をセット ---
         audio.clip = bgm;
+        audio.time = audioStartTime;
+        audio.volume = 0f;
         audio.loop = true;
-        audio.pitch = 1.0f;
         audio.Play();
+
+        // --- フェードイン ---
+        await audio.DOFade(1f, 1.0f)
+            .SetEase(Ease.InSine)
+            .AsyncWaitForCompletion();
     }
 
     public void PlayFindCardBgm()
@@ -62,7 +85,7 @@ public class AudioManager : MonoBehaviour
         audio.clip = startPerformanceBgm;
         audio.Play();
     }
-    
+
     public void ParticleBgm()
     {
         audio.Pause();

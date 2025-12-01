@@ -12,9 +12,6 @@ public enum MotionType
 
 public class CardManager : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private GameObject mainCamera;
-
     [Header("Card Setting")]
     [SerializeField] private GameObject card;
     [SerializeField] private GameObject frame;
@@ -65,10 +62,16 @@ public class CardManager : MonoBehaviour
 
     private void Start()
     {
-        RunSequenceAsync().Forget();
+        // RunSequenceAsync(this.gameObject).Forget();
     }
 
-    private async UniTask RunSequenceAsync()
+    public void StartAnimation(GameObject window2)
+    {
+        window2.SetActive(false);
+        RunSequenceAsync(window2).Forget();
+    }
+
+    private async UniTask RunSequenceAsync(GameObject window2)
     {
         if (_flag) return;
         _flag = true;
@@ -77,6 +80,8 @@ public class CardManager : MonoBehaviour
 
         try
         {
+            await UniTask.Delay(3000);
+
             // --- ① カードを Z+1 へ ---
             await UniTask.WhenAll(
                 card.transform.DOLocalMove(cardInitPos + new Vector3(0, 0, 1f), 0.6f)
@@ -152,6 +157,10 @@ public class CardManager : MonoBehaviour
                 insideCard.transform.DOScale(insideInitScale, r).SetEase(Ease.InOutQuad).AsyncWaitForCompletion().AsUniTask(),
                 insideCard.transform.DOLocalRotateQuaternion(insideInitRot, r).SetEase(Ease.InOutQuad).AsyncWaitForCompletion().AsUniTask()
             );
+
+            await UniTask.Delay(2000);
+            this.gameObject.SetActive(false);
+            if (window2 != null) window2.SetActive(true);
         }
         finally
         {
@@ -170,6 +179,21 @@ public class CardManager : MonoBehaviour
         bgmSource.Stop();
         bgmSource.Play();
     }
+
+    private async UniTask FadeOutAndStopBGM(float duration = 1f)
+    {
+        if (bgmSource == null) return;
+
+        float startVolume = bgmSource.volume;
+
+        await bgmSource.DOFade(0f, duration)
+            .SetEase(Ease.OutQuad)
+            .AsyncWaitForCompletion();
+
+        bgmSource.Stop();
+        bgmSource.volume = startVolume;   // 次回の再生のため元に戻す
+    }
+
 
     // -------------------------------------------------
     // ▼ insideCard Motion
@@ -237,6 +261,9 @@ public class CardManager : MonoBehaviour
             .SetOptions(false) // 元コード通り
             .AsyncWaitForCompletion()
             .AsUniTask();
+
+        // ★ Motion 完了 → フェードアウト
+        await FadeOutAndStopBGM(1f);
     }
 
 
@@ -260,6 +287,9 @@ public class CardManager : MonoBehaviour
         await t.DOLocalMove(new Vector3(-1.5f, 0, 4f), 5f)
             .SetEase(Ease.InQuad)
             .AsyncWaitForCompletion();
+
+        // ★ Motion 完了 → フェードアウト
+        await FadeOutAndStopBGM(1f);
     }
 
 
@@ -276,6 +306,9 @@ public class CardManager : MonoBehaviour
         await t.DOLocalMove(new Vector3(0, -1.2f, -4.5f), 5f)
             .SetEase(Ease.InOutQuad)
             .AsyncWaitForCompletion();
+
+        // ★ Motion 完了 → フェードアウト
+        await FadeOutAndStopBGM(1f);
     }
 
 
@@ -317,11 +350,14 @@ public class CardManager : MonoBehaviour
 
         PlayMotionBGM();
 
-        await t.DOLocalPath(snakePath, 24f, PathType.CatmullRom)
+        await t.DOLocalPath(snakePath, 22f, PathType.CatmullRom)
             .SetEase(Ease.InOutSine)
             .SetOptions(false)
             .AsyncWaitForCompletion()
             .AsUniTask();
+
+        // ★ Motion 完了 → フェードアウト
+        await FadeOutAndStopBGM(1f);
     }
 
 

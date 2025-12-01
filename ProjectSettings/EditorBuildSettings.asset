@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
-    path: Assets/Scenes/ARScene.unity
+  - enabled: 0
+    path: Assets/Scenes/ARScene_Aster.unity
     guid: 6fd46ec50b9451b4b987ce7e3b9593c9
+  - enabled: 0
+    path: Assets/Scenes/ARScene_Sakutama.unity
+    guid: 97af4d2a36f87f24fb0f37d03a48528e
+  - enabled: 1
+    path: Assets/Scenes/ARScene_Icchy.unity
+    guid: 8211fa05d49317c418f4c77534a2483b
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
