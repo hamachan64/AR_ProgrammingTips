@@ -49,7 +49,7 @@ public class PlayWithBGM : MonoBehaviour
         if (!isPlaying && _wasPlaying && pauseWhenAudioStops)
         {
             if (director.state == PlayState.Playing)
-                director.Pause();
+                director.Stop();
         }
 
         _wasPlaying = isPlaying;
@@ -61,23 +61,5 @@ public class PlayWithBGM : MonoBehaviour
         if (director == null || audioSource == null) return;
         director.time = audioSource.time;
         director.Play();
-    }
-
-    // convenience: start both from beginning
-    public void PlayBothFromStart()
-    {
-        if (audioSource != null) audioSource.Play();
-        if (director != null)
-        {
-            director.time = 0d;
-            director.Play();
-        }
-    }
-
-    // convenience: stop both
-    public void StopBoth()
-    {
-        if (audioSource != null) audioSource.Stop();
-        if (director != null) director.Stop();
     }
 }

@@ -1,15 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Cysharp.Threading.Tasks;   // ← 追加
+
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] GameObject window1;
     [SerializeField] GameObject window2;
+    [SerializeField] GameObject searchView;
+    [SerializeField] GameObject readyView;
     [SerializeField] Texture[] windowTexture;
     [SerializeField] RawImage nowTex;
     [SerializeField] new AudioManager audio;
-    [SerializeField] GameObject card;
-    [SerializeField] GameObject mainCamera;
     private int window1Index;
 
 
@@ -54,16 +56,17 @@ public class UIManager : MonoBehaviour
         }
     }
 
-
-    public void HideFrameWhenCardIsChild(GameObject aimFrame)
+    public void ShowAfterDelay()
     {
-        if (card.transform.IsChildOf(mainCamera.transform))
-        {
-            aimFrame.gameObject.SetActive(false);
-        }
-        else
-        {
-            aimFrame.gameObject.SetActive(true);
-        }
+        ShowAfterDelayAsync().Forget();
     }
+
+    private async UniTask ShowAfterDelayAsync()
+    {
+        await UniTask.Delay(5000);      // 5秒待つ
+        if (!searchView.activeSelf && readyView != null)
+            readyView.SetActive(true);     // アクティブ化
+    }
+
+
 }
